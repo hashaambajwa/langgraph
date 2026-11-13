@@ -43,8 +43,9 @@ def test_data_decoder_yields_params_data():
     assert list(decoder.feed(values_event(seq=2, x=2, y=3))) == [{"x": 2, "y": 3}]
 
 
-
-@pytest.mark.parametrize("method", ["values", "updates", "checkpoints", "tasks", "custom"])
+@pytest.mark.parametrize(
+    "method", ["values", "updates", "checkpoints", "tasks", "custom"]
+)
 def test_data_decoder_preserves_explicit_null_and_other_falsey_data(method):
     decoder = DataDecoder(method)
 
@@ -64,12 +65,10 @@ def test_data_decoder_preserves_explicit_null_and_other_falsey_data(method):
 
 def test_data_decoder_namespace_filter_preserves_null_only_in_matching_scope():
     decoder = DataDecoder("custom", namespace=["child"])
-    assert list(decoder.feed({
-        "method": "custom", "params": {"namespace": ["child"], "data": None}
-    })) == [None]
-    assert list(decoder.feed({
-        "method": "custom", "params": {"namespace": [], "data": None}
-    })) == []
+    matching = {"method": "custom", "params": {"namespace": ["child"], "data": None}}
+    nonmatching = {"method": "custom", "params": {"namespace": [], "data": None}}
+    assert list(decoder.feed(matching)) == [None]
+    assert list(decoder.feed(nonmatching)) == []
 
 
 def test_data_decoder_ignores_other_methods():
